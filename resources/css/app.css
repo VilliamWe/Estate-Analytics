@@ -1,0 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    [x-cloak] {
+        display: none !important;
+    }
+
+    body {
+        @apply bg-[#F3F6F7] text-slate-900 antialiased;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+        @apply text-slate-900;
+    }
+}
+
+@layer components {
+    .ea-page {
+        @apply py-6 lg:py-8;
+    }
+
+    .ea-container {
+        @apply mx-auto max-w-[88rem] px-4 sm:px-6 lg:px-8;
+    }
+
+    .ea-card {
+        @apply overflow-hidden rounded-[22px] border border-slate-200/80 bg-white shadow-[0_18px_45px_rgba(15,61,62,0.08)];
+    }
+
+    .ea-card-body {
+        @apply p-5 sm:p-6;
+    }
+
+    .ea-section-title {
+        @apply text-2xl font-semibold leading-tight text-slate-800;
+    }
+
+    .ea-btn {
+        @apply inline-flex items-center justify-center rounded-xl bg-[#0F3D3E] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#14585A] focus:outline-none;
+    }
+
+    .ea-btn-secondary {
+        @apply inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none;
+    }
+
+    .ea-btn-warning {
+        @apply inline-flex items-center justify-center rounded-xl bg-[#C7771A] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#B46812] focus:outline-none;
+    }
+
+    .ea-link {
+        @apply font-medium text-[#1F6F78] transition hover:text-[#0F3D3E] hover:underline;
+    }
+
+    .ea-link-warning {
+        @apply font-medium text-amber-700 transition hover:text-amber-900 hover:underline;
+    }
+
+    .ea-link-danger {
+        @apply font-medium text-rose-600 transition hover:text-rose-800 hover:underline;
+    }
+
+    .ea-alert-success {
+        @apply mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800;
+    }
+
+    .ea-alert-error {
+        @apply mb-6 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800;
+    }
+
+    .ea-label {
+        @apply mb-1.5 block text-sm font-semibold text-slate-700;
+    }
+
+    .ea-input {
+        @apply w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm transition placeholder:text-slate-400 focus:border-[#1F6F78] focus:ring-2 focus:ring-[#1F6F78]/20 focus:outline-none;
+    }
+
+    .ea-table {
+        @apply min-w-full divide-y divide-slate-200 text-sm;
+    }
+
+    .ea-table thead tr {
+        @apply bg-[#F8FAFA] text-left text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500;
+    }
+
+    .ea-table th,
+    .ea-table td {
+        @apply px-3 py-2.5 align-middle;
+    }
+
+    .ea-table tbody tr {
+        @apply border-t border-slate-100 bg-white transition hover:bg-[#FAFCFC];
+    }
+
+    .ea-stat-grid {
+        @apply grid gap-4 md:grid-cols-2 xl:grid-cols-3;
+    }
+
+    .ea-stat-card {
+        @apply rounded-2xl border border-slate-200 bg-[#FAFCFC] p-4 shadow-sm;
+    }
+
+    .ea-stat-label {
+        @apply text-sm font-medium text-slate-500;
+    }
+
+    .ea-stat-value {
+        @apply mt-1 text-lg font-semibold text-slate-900;
+    }
+}
