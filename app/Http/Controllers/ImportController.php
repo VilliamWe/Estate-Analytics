@@ -7,10 +7,22 @@ use App\Models\ImportLog;
 use App\Models\Property;
 use App\Models\PropertyType;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class ImportController extends Controller
 {
-     public function index()
+    private const REQUIRED_HEADERS = [
+        'title',
+        'type',
+        'address',
+        'district',
+        'area',
+        'price',
+        'status',
+    ];
+
+    public function index()
     {
         $logs = ImportLog::with('user')->latest()->paginate(10);
 
@@ -20,13 +32,11 @@ class ImportController extends Controller
     public function importProperties(Request $request)
     {
         $request->validate([
-            'file' => ['required', 'file', 'mimes:csv,txt'],
+            'file' => ['required', 'file', 'mimes:csv,txt', 'max:2048'],
         ]);
 
         $file = $request->file('file');
-        $path = $file->getRealPath();
-
-        $handle = fopen($path, 'r');
+        $handle = fopen($file->getRealPath(), 'r');
 
         if (! $handle) {
             return back()->withErrors([
@@ -36,45 +46,71 @@ class ImportController extends Controller
 
         $header = fgetcsv($handle, 1000, ',');
 
+        if (! is_array($header)) {
+            fclose($handle);
+
+            return back()->withErrors([
+                'file' => 'CSV-файл не содержит корректной строки заголовков.',
+            ]);
+        }
+
+        $header = array_map(static fn ($value) => trim((string) $value), $header);
+        $missingHeaders = array_values(array_diff(self::REQUIRED_HEADERS, $header));
+
+        if ($missingHeaders !== []) {
+            fclose($handle);
+
+            return back()->withErrors([
+                'file' => 'В CSV отсутствуют обязательные колонки: '.implode(', ', $missingHeaders).'.',
+            ]);
+        }
+
         $importedRows = 0;
         $failedRows = 0;
 
         while (($row = fgetcsv($handle, 1000, ',')) !== false) {
+            if (count($row) !== count($header)) {
+                $failedRows++;
+                continue;
+            }
+
+            $data = array_combine($header, $row);
+
+            if ($data === false) {
+                $failedRows++;
+                continue;
+            }
+
             try {
-                $data = array_combine($header, $row);
+                DB::transaction(function () use ($data): void {
+                    $propertyType = PropertyType::firstOrCreate([
+                        'title' => trim((string) $data['type']),
+                    ]);
 
-                if (! $data) {
-                    $failedRows++;
-                    continue;
-                }
+                    $district = District::firstOrCreate([
+                        'title' => trim((string) $data['district']),
+                    ]);
 
-                $propertyType = PropertyType::firstOrCreate([
-                    'title' => trim($data['type']),
-                ]);
+                    $area = (float) $data['area'];
+                    $price = (float) $data['price'];
 
-                $district = District::firstOrCreate([
-                    'title' => trim($data['district']),
-                ]);
-
-                $area = (float) $data['area'];
-                $price = (float) $data['price'];
-
-                Property::create([
-                    'title' => trim($data['title']),
-                    'property_type_id' => $propertyType->id,
-                    'district_id' => $district->id,
-                    'segment' => null,
-                    'address' => trim($data['address']),
-                    'area' => $area,
-                    'price' => $price,
-                    'price_per_sqm' => $area > 0 ? round($price / $area, 2) : 0,
-                    'status' => trim($data['status']),
-                    'responsible_user_id' => auth()->id(),
-                    'description' => null,
-                ]);
+                    Property::create([
+                        'title' => trim((string) $data['title']),
+                        'property_type_id' => $propertyType->id,
+                        'district_id' => $district->id,
+                        'segment' => null,
+                        'address' => trim((string) $data['address']),
+                        'area' => $area,
+                        'price' => $price,
+                        'price_per_sqm' => $area > 0 ? round($price / $area, 2) : 0,
+                        'status' => trim((string) $data['status']),
+                        'responsible_user_id' => auth()->id(),
+                        'description' => null,
+                    ]);
+                });
 
                 $importedRows++;
-            } catch (\Throwable $e) {
+            } catch (Throwable) {
                 $failedRows++;
             }
         }
@@ -91,7 +127,6 @@ class ImportController extends Controller
 
         return redirect()
             ->route('imports.index')
-            ->with('success', 'Импорт объектов завершён.');
+            ->with('success', "Импорт завершён: успешно {$importedRows}, с ошибками {$failedRows}.");
     }
 }
-
