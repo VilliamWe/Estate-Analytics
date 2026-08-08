@@ -79,7 +79,7 @@ class PropertyController extends Controller
             'price' => ['required', 'numeric', 'min:0'],
             'status' => ['required', 'string', 'max:255'],
             'responsible_user_id' => ['required', 'exists:users,id'],
-            'description' => ['nullable', 'string'],
+            'description' => ['nullable', 'string', 'max:200'],
         ]);
 
         $validated['price_per_sqm'] = $validated['area'] > 0
@@ -176,7 +176,7 @@ class PropertyController extends Controller
             'price' => ['required', 'numeric', 'min:0'],
             'status' => ['required', 'string', 'max:255'],
             'responsible_user_id' => ['required', 'exists:users,id'],
-            'description' => ['nullable', 'string'],
+            'description' => ['nullable', 'string', 'max:200'],
         ]);
 
         $validated['price_per_sqm'] = $validated['area'] > 0

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -13,10 +14,31 @@ class UserController extends Controller
 
         return view('users.index', compact('users'));
     }
+    public function destroy(User $user)
+    {
+        if ($user->id === auth()->id()) {
+            return redirect()->route('users.index')
+                ->with('error', 'Вы не можете удалить свою собственную учетную запись.');
+        }
 
+        if ($user->role === 'admin') {
+            $currentUser = auth()->user();
+            
+            if ($currentUser->email !== 'admin@estate.local') {
+                return redirect()->route('users.index')
+                    ->with('error', 'У вас нет прав на удаление администратора.');
+            }
+        }
+
+        $user->delete();
+
+        return redirect()->route('users.index')
+            ->with('success', 'Пользователь "' . $user->name . '" успешно удален.');
+    }
     public function create()
     {
-        $roles = ['admin', 'employee'];
+        $roles = ['admin' => 'Администратор', 
+        'employee' => 'Сотрудник'];
 
         return view('users.create', compact('roles'));
     }

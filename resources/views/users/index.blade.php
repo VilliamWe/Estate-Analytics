@@ -49,6 +49,12 @@
                     {{ session('success') }}
                 </div>
             @endif
+            
+            @if (session('error'))
+                <div class="ea-alert-error">
+                    {{ session('error') }}
+                </div>
+            @endif
 
             <div class="ea-card">
                 <div class="ea-card-body">
@@ -67,6 +73,7 @@
                                     <th>Email</th>
                                     <th>Роль</th>
                                     <th>Дата создания</th>
+                                    <th>Действия</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -74,12 +81,28 @@
                                     <tr>
                                         <td class="font-semibold text-slate-900">{{ $user->name }}</td>
                                         <td>{{ $user->email }}</td>
-                                        <td>{{ $user->role }}</td>
+                                        <td>{{ $user->role === 'admin' ? 'Администратор' : 'Сотрудник' }}</td>
                                         <td>{{ $user->created_at?->format('d.m.Y H:i') }}</td>
+                                        <td>
+                                            <div class="flex items-center gap-2">
+                                                <form action="{{ route('users.destroy', $user) }}" method="POST" 
+                                                      onsubmit="return confirm('Вы уверены, что хотите удалить пользователя {{ $user->name }}?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" 
+                                                            class="inline-flex items-center rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 transition-all hover:bg-red-100 hover:text-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                                                        <svg class="mr-1.5 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                        </svg>
+                                                        Удалить
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="4" class="py-8 text-center text-slate-500">
+                                        <td colspan="5" class="py-8 text-center text-slate-500">
                                             Пользователи не найдены.
                                         </td>
                                     </tr>

@@ -91,7 +91,7 @@ class ExposureController extends Controller
             'leads_count' => ['required', 'integer', 'min:0'],
             'status' => ['required', 'string', 'max:255'],
             'source_url' => ['nullable', 'url'],
-            'comment' => ['nullable', 'string'],
+            'comment' => ['nullable', 'string', 'max:200'],
         ]);
 
         $validated['created_by'] = auth()->id();
@@ -154,7 +154,7 @@ class ExposureController extends Controller
             'leads_count' => ['required', 'integer', 'min:0'],
             'status' => ['required', 'string', 'max:255'],
             'source_url' => ['nullable', 'url'],
-            'comment' => ['nullable', 'string'],
+            'comment' => ['nullable', 'string', 'max:200'],
         ]);
 
         $exposure->update($validated);

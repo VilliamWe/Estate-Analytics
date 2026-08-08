@@ -37,16 +37,16 @@
                                 <input type="email" name="email" value="{{ old('email') }}" class="ea-input">
                             </div>
 
-                            <div>
-                                <label class="ea-label">Роль</label>
-                                <select name="role" class="ea-input">
-                                    @foreach ($roles as $role)
-                                        <option value="{{ $role }}" @selected(old('role') === $role)>
-                                            {{ $role }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
+                             <div>
+                                 <label class="ea-label">Роль</label>
+                                 <select name="role" class="ea-input">
+                                    @foreach ($roles as $roleValue => $roleLabel)
+                                        <option value="{{ $roleValue }}" @selected(old('role') === $roleValue)>
+                                            {{ $roleLabel }}
+                                         </option>
+                                     @endforeach
+                                 </select>
+                             </div>
 
                             <div>
                                 <label class="ea-label">Пароль</label>
