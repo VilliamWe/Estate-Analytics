@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StorePropertyRequest;
+use App\Http\Requests\UpdatePropertyRequest;
 use App\Models\District;
 use App\Models\Property;
 use App\Models\PropertyType;
@@ -42,7 +44,7 @@ class PropertyController extends Controller
 
         $propertyTypes = PropertyType::orderBy('title')->get();
         $districts = District::orderBy('title')->get();
-        $statuses = ['Новый', 'В работе', 'Активный', 'Приостановлен', 'Закрыт', 'Архивный'];
+        $statuses = Property::STATUSES;
 
         return view('properties.index', compact(
             'properties',
@@ -60,27 +62,17 @@ class PropertyController extends Controller
         $propertyTypes = PropertyType::orderBy('title')->get();
         $districts = District::orderBy('title')->get();
         $users = User::orderBy('name')->get();
+        $statuses = Property::STATUSES;
 
-        return view('properties.create', compact('propertyTypes', 'districts', 'users'));
+        return view('properties.create', compact('propertyTypes', 'districts', 'users', 'statuses'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StorePropertyRequest $request)
     {
-        $validated = $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'property_type_id' => ['required', 'exists:property_types,id'],
-            'district_id' => ['required', 'exists:districts,id'],
-            'segment' => ['nullable', 'string', 'max:255'],
-            'address' => ['required', 'string', 'max:255'],
-            'area' => ['required', 'numeric', 'min:0'],
-            'price' => ['required', 'numeric', 'min:0'],
-            'status' => ['required', 'string', 'max:255'],
-            'responsible_user_id' => ['required', 'exists:users,id'],
-            'description' => ['nullable', 'string', 'max:200'],
-        ]);
+        $validated = $request->validated();
 
         $validated['price_per_sqm'] = $validated['area'] > 0
             ? round($validated['price'] / $validated['area'], 2)
@@ -157,27 +149,17 @@ class PropertyController extends Controller
         $propertyTypes = PropertyType::orderBy('title')->get();
         $districts = District::orderBy('title')->get();
         $users = User::orderBy('name')->get();
+        $statuses = Property::STATUSES;
 
-        return view('properties.edit', compact('property', 'propertyTypes', 'districts', 'users'));
+        return view('properties.edit', compact('property', 'propertyTypes', 'districts', 'users', 'statuses'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Property $property)
+    public function update(UpdatePropertyRequest $request, Property $property)
     {
-        $validated = $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'property_type_id' => ['required', 'exists:property_types,id'],
-            'district_id' => ['required', 'exists:districts,id'],
-            'segment' => ['nullable', 'string', 'max:255'],
-            'address' => ['required', 'string', 'max:255'],
-            'area' => ['required', 'numeric', 'min:0'],
-            'price' => ['required', 'numeric', 'min:0'],
-            'status' => ['required', 'string', 'max:255'],
-            'responsible_user_id' => ['required', 'exists:users,id'],
-            'description' => ['nullable', 'string', 'max:200'],
-        ]);
+        $validated = $request->validated();
 
         $validated['price_per_sqm'] = $validated['area'] > 0
             ? round($validated['price'] / $validated['area'], 2)
