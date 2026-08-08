@@ -4,10 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Exposure extends Model
 {
     use HasFactory;
+
+    public const STATUSES = [
+        'Активна',
+        'Завершена',
+        'Снята',
+        'Неэффективна',
+    ];
 
     protected $fillable = [
         'property_id',
@@ -23,6 +31,11 @@ class Exposure extends Model
         'comment',
     ];
 
+    protected $appends = [
+        'duration_days',
+        'views_per_day',
+        'leads_per_day',
+    ];
 
     protected function casts(): array
     {
@@ -30,16 +43,29 @@ class Exposure extends Model
             'start_date' => 'date',
             'end_date' => 'date',
             'publication_price' => 'decimal:2',
+            'views_count' => 'integer',
+            'leads_count' => 'integer',
         ];
     }
-    protected $appends = [
-        'duration_days',
-        'views_per_day',
-        'leads_per_day',
-    ];
+
+    public function property(): BelongsTo
+    {
+        return $this->belongsTo(Property::class);
+    }
+
+    public function channel(): BelongsTo
+    {
+        return $this->belongsTo(ExposureChannel::class, 'channel_id');
+    }
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
     public function getPriceDeviationPercentAttribute(): float
     {
-        if (!$this->property || !$this->property->district_id || !$this->property->property_type_id) {
+        if (! $this->property || ! $this->property->district_id || ! $this->property->property_type_id) {
             return 0;
         }
 
@@ -48,7 +74,7 @@ class Exposure extends Model
             ->where('property_type_id', $this->property->property_type_id)
             ->avg('price_per_sqm');
 
-        if (!$averagePricePerSqm || $averagePricePerSqm == 0) {
+        if (! $averagePricePerSqm) {
             return 0;
         }
 
@@ -74,30 +100,13 @@ class Exposure extends Model
         return 'Низкая';
     }
 
-
-    public function property()
-    {
-        return $this->belongsTo(Property::class);
-    }
-
-    public function channel()
-    {
-        return $this->belongsTo(ExposureChannel::class, 'channel_id');
-    }
-
-    public function creator()
-    {
-        return $this->belongsTo(User::class, 'created_by');
-    }
-
     public function getDurationDaysAttribute(): int
     {
-        if (!$this->start_date) {
+        if (! $this->start_date) {
             return 0;
         }
 
         $endDate = $this->end_date ?? now();
-
         $days = $this->start_date->diffInDays($endDate);
 
         return max($days, 1);
