@@ -1,9 +1,9 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/laravel",
+    "name": "villiamwe/estate-analytics",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
+    "description": "Internal Laravel web application for commercial real estate analytics and exposure performance tracking.",
+    "keywords": ["laravel", "php", "real-estate", "analytics", "portfolio"],
     "license": "MIT",
     "require": {
         "php": "^8.2",
